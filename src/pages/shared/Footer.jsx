@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router";
+import { NavLink } from "react-router"; 
 import {
   FaFacebookF,
   FaGithub,
@@ -11,38 +11,47 @@ import { MdEmail } from "react-icons/md";
 
 const Footer = () => {
   return (
-    <footer className="py-4 mt-4">
-      <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-16">
+    <footer className="bg-white py-8 mt-12 border-t border-orange-200">
+      <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12">
+        
         {/* Left side - Branding */}
         <div>
-          <h1
-            className="hidden md:block text-2xl md:text-3xl font-extrabold 
-             "
-          >
-            Athletic<span className="">Club</span>
+          <h1 className="text-2xl md:text-3xl font-extrabold">
+            <span className="bg-gradient-to-r from-orange-500 to-blue-600 bg-clip-text text-transparent">
+              EduPulse
+            </span>
           </h1>
-          <p className="mt-3 text-sm ">
-            Connecting athletes and fans through events, bookings, and
-            management.
+          <p className="mt-3 text-sm text-gray-600">
+            Empowering students and tutors through seamless study sessions, 
+            resource sharing, and smart learning tools.
           </p>
         </div>
 
         {/* Center - Quick Links */}
         <div>
-          <h3 className="text-lg font-semibold mb-3">Quick Links</h3>
-          <ul className="space-y-2">
+          <h3 className="text-lg font-semibold mb-3 text-gray-800">Quick Links</h3>
+          <ul className="space-y-2 text-gray-600">
             <li>
-              <NavLink to="/" className=" transition-colors">
+              <NavLink
+                to="/"
+                className="hover:text-orange-500 transition-colors"
+              >
                 Home
               </NavLink>
             </li>
             <li>
-              <NavLink to="/tutors" className=" transition-colors">
+              <NavLink
+                to="/tutors"
+                className="hover:text-orange-500 transition-colors"
+              >
                 Tutors
               </NavLink>
             </li>
             <li>
-              <NavLink to="/studySessions" className=" transition-colors">
+              <NavLink
+                to="/studySessions"
+                className="hover:text-orange-500 transition-colors"
+              >
                 Study Sessions
               </NavLink>
             </li>
@@ -51,45 +60,54 @@ const Footer = () => {
 
         {/* Right side - Social + Contact */}
         <div>
-          <h3 className="text-lg font-semibold mb-3">Stay Connected</h3>
-          <div className="flex gap-4 text-lg mb-5">
+          <h3 className="text-lg font-semibold mb-3 text-gray-800">Stay Connected</h3>
+          <div className="flex gap-4 text-lg mb-5 text-gray-700">
             <a
               href="https://www.facebook.com/ishtiaque.hossaintanbin.1"
-              className="p-2 rounded-full  transition"
+              target="_blank"
+              rel="noreferrer"
+              className="p-2 rounded-full hover:bg-orange-400 transition"
             >
               <FaFacebookF />
             </a>
             <a
               href="https://t.me/Ishtiaque_HT"
-              className="p-2 rounded-full  transition"
+              target="_blank"
+              rel="noreferrer"
+              className="p-2 rounded-full hover:bg-orange-400 transition"
             >
               <FaTelegram />
             </a>
             <a
               href="https://github.com/"
-              className="p-2 rounded-full  transition"
+              target="_blank"
+              rel="noreferrer"
+              className="p-2 rounded-full hover:bg-orange-400 transition"
             >
               <FaGithub />
             </a>
             <a
               href="https://www.linkedin.com/in/ishtiaqueht/"
-              className="p-2 rounded-full transition"
+              target="_blank"
+              rel="noreferrer"
+              className="p-2 rounded-full hover:bg-orange-400 transition"
             >
               <FaLinkedinIn />
             </a>
           </div>
-          <p className="text-sm flex items-center gap-2">
-            <MdEmail /> ishtiaqueht@gmail.com
+
+          <p className="text-sm flex items-center gap-2 text-gray-600">
+            <MdEmail className="text-orange-500" /> ishtiaqueht@gmail.com
           </p>
-          <p className=" text-sm flex items-center gap-2">
-            <FaPhoneAlt /> +880 1787 127080
+          <p className="text-sm flex items-center gap-2 text-gray-600">
+            <FaPhoneAlt className="text-orange-500" /> +880 1787 127080
           </p>
         </div>
       </div>
 
       {/* Bottom copyright */}
-      <div className="border-t  mt-8 pt-4 text-center text-sm">
-        © {new Date().getFullYear()} AthleticClub. All Rights Reserved.
+      <div className="border-t mt-8 pt-4 text-center text-sm text-gray-500">
+        © {new Date().getFullYear()} EduPulse. All Rights Reserved.
       </div>
     </footer>
   );
