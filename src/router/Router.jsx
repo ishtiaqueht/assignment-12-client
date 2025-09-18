@@ -9,6 +9,7 @@ import Register from "../pages/authentication/Register";
 import SessionDetails from "../pages/studySessions.jsx/SessionDetails";
 import PrivateRoute from "../routes/PrivateRoute";
 import DashboardLayout from "../layouts/DashboardLayout";
+import MakeRole from "../pages/dashBoard/MakeRole";
 
 export const router = createBrowserRouter([
   {
@@ -72,7 +73,7 @@ export const router = createBrowserRouter([
       { path: "my-materials", element: <div>My Materials Page</div> },
 
       // Admin
-      { path: "users", element: <div>Manage Users Page</div> },
+      { path: "users", element: <MakeRole></MakeRole> },
       { path: "all-sessions", element: <div>Manage Sessions Page</div> },
       { path: "all-materials", element: <div>Manage Materials Page</div> },
     ],
