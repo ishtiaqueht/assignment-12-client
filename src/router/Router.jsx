@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter } from "react-router"; 
 import RootLayout from "../layouts/RootLayouts";
 import Home from "../pages/Home/Home";
 import Tutors from "../pages/tutors/Tutors";
@@ -10,49 +10,36 @@ import SessionDetails from "../pages/studySessions.jsx/SessionDetails";
 import PrivateRoute from "../routes/PrivateRoute";
 import DashboardLayout from "../layouts/DashboardLayout";
 import MakeRole from "../pages/dashBoard/MakeRole";
+import BeATutor from "../pages/dashBoard/BeATutor";
+import ApproveTutors from "../pages/dashBoard/ApproveTutors";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    Component: RootLayout,
+    element: <RootLayout />,
     children: [
-      {
-        index: true,
-        Component: Home,
-      },
-      {
-        path: "tutors",
-        Component: Tutors,
-      },
-      {
-        path: "studySessions",
-        Component: StudySessions,
-      },
-      {
-        path: "/sessions/:id",
+      { index: true, element: <Home /> },
+      { path: "tutors", element: <Tutors /> },
+      { path: "studySessions", element: <StudySessions /> },
+      { 
+        path: "sessions/:id", 
         element: (
           <PrivateRoute>
-            <SessionDetails></SessionDetails>
+            <SessionDetails />
           </PrivateRoute>
-        ),
+        )
       },
     ],
   },
   {
     path: "/",
-    Component: AuthLayout,
+    element: <AuthLayout />,
     children: [
-      {
-        path: "login",
-        Component: Login,
-      },
-      {
-        path: "register",
-        Component: Register,
-      },
+      { path: "login", element: <Login /> },
+      { path: "register", element: <Register /> },
     ],
   },
-   {
+  {
     path: "/dashboard",
     element: (
       <PrivateRoute>
@@ -65,6 +52,7 @@ export const router = createBrowserRouter([
       { path: "create-note", element: <div>Create Note Page</div> },
       { path: "manage-notes", element: <div>Manage Notes Page</div> },
       { path: "study-materials", element: <div>Study Materials Page</div> },
+      { path: "be-a-tutor", element: <BeATutor /> },
 
       // Tutor
       { path: "create-session", element: <div>Create Session Page</div> },
@@ -73,7 +61,8 @@ export const router = createBrowserRouter([
       { path: "my-materials", element: <div>My Materials Page</div> },
 
       // Admin
-      { path: "users", element: <MakeRole></MakeRole> },
+      { path: "users", element: <MakeRole /> },
+      { path: "approve-tutors", element: <ApproveTutors /> },
       { path: "all-sessions", element: <div>Manage Sessions Page</div> },
       { path: "all-materials", element: <div>Manage Materials Page</div> },
     ],
