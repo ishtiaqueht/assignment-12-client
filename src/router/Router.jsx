@@ -12,6 +12,7 @@ import DashboardLayout from "../layouts/DashboardLayout";
 import MakeRole from "../pages/dashBoard/MakeRole";
 import BeATutor from "../pages/dashBoard/BeATutor";
 import ApproveTutors from "../pages/dashBoard/ApproveTutors";
+import CreateStudySession from "../pages/dashBoard/CreateStudySession";
 
 export const router = createBrowserRouter([
   {
@@ -55,7 +56,7 @@ export const router = createBrowserRouter([
       { path: "be-a-tutor", element: <BeATutor /> },
 
       // Tutor
-      { path: "create-session", element: <div>Create Session Page</div> },
+      { path: "create-session", element: <CreateStudySession></CreateStudySession> },
       { path: "my-sessions", element: <div>My Sessions Page</div> },
       { path: "upload-materials", element: <div>Upload Materials Page</div> },
       { path: "my-materials", element: <div>My Materials Page</div> },
