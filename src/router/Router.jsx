@@ -62,7 +62,7 @@ export const router = createBrowserRouter([
       { path: "my-materials", element: <div>My Materials Page</div> },
 
       // Admin
-      { path: "users", element: <MakeRole /> },
+      { path:"manageUsers", element: <MakeRole /> },
       { path: "approve-tutors", element: <ApproveTutors /> },
       { path: "all-sessions", element: <div>Manage Sessions Page</div> },
       { path: "all-materials", element: <div>Manage Materials Page</div> },

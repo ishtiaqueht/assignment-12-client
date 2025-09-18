@@ -27,7 +27,10 @@ const DashboardLayout = () => {
             {/* Student Routes */}
             {role === "student" && (
               <>
-                <NavLink to="/dashboard/booked-sessions" className={activeClass}>
+                <NavLink
+                  to="/dashboard/booked-sessions"
+                  className={activeClass}
+                >
                   View Booked Sessions
                 </NavLink>
                 <NavLink to="/dashboard/create-note" className={activeClass}>
@@ -36,14 +39,14 @@ const DashboardLayout = () => {
                 <NavLink to="/dashboard/manage-notes" className={activeClass}>
                   Manage Notes
                 </NavLink>
-                <NavLink to="/dashboard/study-materials" className={activeClass}>
+                <NavLink
+                  to="/dashboard/study-materials"
+                  className={activeClass}
+                >
                   View Study Materials
                 </NavLink>
                 <NavLink to="/dashboard/be-a-tutor" className={activeClass}>
                   Be a Tutor
-                </NavLink>
-                 <NavLink to="/dashboard/approve-tutors" className={activeClass}>
-                  Approve Tutors
                 </NavLink>
               </>
             )}
@@ -57,7 +60,10 @@ const DashboardLayout = () => {
                 <NavLink to="/dashboard/my-sessions" className={activeClass}>
                   My Study Sessions
                 </NavLink>
-                <NavLink to="/dashboard/upload-materials" className={activeClass}>
+                <NavLink
+                  to="/dashboard/upload-materials"
+                  className={activeClass}
+                >
                   Upload Materials
                 </NavLink>
                 <NavLink to="/dashboard/my-materials" className={activeClass}>
@@ -72,12 +78,18 @@ const DashboardLayout = () => {
                 <NavLink to="/dashboard/users" className={activeClass}>
                   Manage Users
                 </NavLink>
-               
+
                 <NavLink to="/dashboard/all-sessions" className={activeClass}>
                   Manage Study Sessions
                 </NavLink>
                 <NavLink to="/dashboard/all-materials" className={activeClass}>
                   Manage Materials
+                </NavLink>
+                <NavLink to="/dashboard/approve-tutors" className={activeClass}>
+                  Approve Tutors
+                </NavLink>
+                <NavLink to="/dashboard/manageUsers" className={activeClass}>
+                  Manage Admin
                 </NavLink>
               </>
             )}

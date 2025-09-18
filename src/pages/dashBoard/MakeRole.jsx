@@ -1,99 +1,88 @@
 import React from "react";
-import { useForm } from "react-hook-form";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import axios from "axios";
+
 import { toast } from "react-toastify";
+import UseAxios from "../../hooks/UseAxios";
 
 const MakeRole = () => {
   const queryClient = useQueryClient();
-  const { register, handleSubmit, watch, reset } = useForm();
 
-  const email = watch("email");
-
-  // 🔹 Fetch users by email for live search
-  const { data: users = [], refetch } = useQuery({
-    queryKey: ["users", email],
+  // 🔹 Fetch all users
+  const { data: users = [], isLoading } = useQuery({
+    queryKey: ["users"],
     queryFn: async () => {
-      if (!email) return [];
-      const res = await axios.get(`/users/search?email=${email}`);
-      return res.data;
+      const axiosInstance = UseAxios();
+      const res = await axiosInstance.get("users"); // Backend GET /users
+      return Array.isArray(res.data) ? res.data : [];
     },
-    enabled: !!email,
   });
 
-  // 🔹 Update role mutation
+  // 🔹 Mutation to update role
   const mutation = useMutation({
-    mutationFn: async ({ id, role }) => {
-      const res = await axios.patch(`/users/${id}/role`, { role });
+    mutationFn: async (id) => {
+      const axiosInstance = UseAxios();
+      const res = await axiosInstance.patch(`users/${id}/role`, {
+        role: "admin",
+      });
       return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["users"]);
-      refetch(); // ✅ refetch call
-      toast.success("Role updated successfully ✅"); // toast instead of alert
-      reset();
+      toast.success("User promoted to Admin ✅");
     },
     onError: (err) => {
       toast.error(err.response?.data?.message || "Something went wrong ❌");
     },
   });
 
-  const onSubmit = (data) => {
-    const { userId, role } = data;
-    mutation.mutate({ id: userId, role });
-  };
+  if (isLoading) return <p className="text-center mt-10">Loading users...</p>;
 
   return (
-    <div className="p-6 bg-white shadow rounded-md w-full max-w-lg mx-auto">
-      <h2 className="text-xl font-bold mb-4">Assign Role</h2>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div>
-          <label className="block mb-1">Search by Email</label>
-          <input
-            type="email"
-            {...register("email")}
-            placeholder="Enter user email..."
-            className="w-full border p-2 rounded"
-          />
-        </div>
+    <div className="p-6 bg-white rounded-2xl shadow-xl w-full max-w-6xl mx-auto mt-8">
+      <h2 className="text-3xl font-bold mb-6 text-center text-orange-500">
+        Manage Users
+      </h2>
 
-        {users.length > 0 && (
-          <>
-            <div>
-              <label className="block mb-1">Select User</label>
-              <select
-                {...register("userId")}
-                className="w-full border p-2 rounded"
-                required
+      <div className="overflow-x-auto">
+        <table className="min-w-full border-collapse shadow-md">
+          <thead>
+            <tr className="bg-gradient-to-r from-orange-400 to-orange-600 text-white text-lg uppercase tracking-wide">
+              <th className="border px-4 py-3 text-left">#</th>
+              <th className="border px-4 py-3 text-left">Name</th>
+              <th className="border px-4 py-3 text-left">Email</th>
+              <th className="border px-4 py-3 text-left">Role</th>
+              <th className="border px-4 py-3 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((user, index) => (
+              <tr
+                key={user._id}
+                className="border-b hover:bg-orange-50 transition duration-300 ease-in-out"
               >
-                <option value="">-- Select User --</option>
-                {users.map((u) => (
-                  <option key={u._id} value={u._id}>
-                    {u.name} ({u.email}) – {u.role || "student"}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block mb-1">Select Role</label>
-              <select {...register("role")} className="w-full border p-2 rounded" required>
-                <option value="">-- Select Role --</option>
-                <option value="student">Student</option>
-                <option value="tutor">Tutor</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-          </>
-        )}
-
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Update Role
-        </button>
-      </form>
+                <td className="border px-4 py-2">{index + 1}</td>
+                <td className="border px-4 py-2 font-medium">{user.name}</td>
+                <td className="border px-4 py-2">{user.email}</td>
+                <td className="border px-4 py-2 capitalize">
+                  {user.role || "student"}
+                </td>
+                <td className="border px-4 py-2 flex justify-center gap-2">
+                  {user.role !== "admin" ? (
+                    <button
+                      onClick={() => mutation.mutate(user._id)}
+                      className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg shadow-md transform hover:scale-105 transition duration-300"
+                    >
+                      Make Admin
+                    </button>
+                  ) : (
+                    <span className="text-green-600 font-semibold">Admin</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
