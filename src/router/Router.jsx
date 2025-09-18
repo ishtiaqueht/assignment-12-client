@@ -8,6 +8,7 @@ import Login from "../pages/authentication/Login";
 import Register from "../pages/authentication/Register";
 import SessionDetails from "../pages/studySessions.jsx/SessionDetails";
 import PrivateRoute from "../routes/PrivateRoute";
+import DashboardLayout from "../layouts/DashboardLayout";
 
 export const router = createBrowserRouter([
   {
@@ -48,6 +49,32 @@ export const router = createBrowserRouter([
         path: "register",
         Component: Register,
       },
+    ],
+  },
+   {
+    path: "/dashboard",
+    element: (
+      <PrivateRoute>
+        <DashboardLayout />
+      </PrivateRoute>
+    ),
+    children: [
+      // Student
+      { path: "booked-sessions", element: <div>Booked Sessions Page</div> },
+      { path: "create-note", element: <div>Create Note Page</div> },
+      { path: "manage-notes", element: <div>Manage Notes Page</div> },
+      { path: "study-materials", element: <div>Study Materials Page</div> },
+
+      // Tutor
+      { path: "create-session", element: <div>Create Session Page</div> },
+      { path: "my-sessions", element: <div>My Sessions Page</div> },
+      { path: "upload-materials", element: <div>Upload Materials Page</div> },
+      { path: "my-materials", element: <div>My Materials Page</div> },
+
+      // Admin
+      { path: "users", element: <div>Manage Users Page</div> },
+      { path: "all-sessions", element: <div>Manage Sessions Page</div> },
+      { path: "all-materials", element: <div>Manage Materials Page</div> },
     ],
   },
 ]);
