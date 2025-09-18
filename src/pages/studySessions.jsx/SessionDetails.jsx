@@ -1,7 +1,7 @@
 import { useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import useAxios from "../../hooks/UseAxios";
-import { useAuth } from "../../hooks/UseAuth";
+import useAuth from "../../hooks/UseAuth";
 
 const SessionDetails = () => {
   const { id } = useParams();
@@ -55,66 +55,96 @@ const SessionDetails = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold mb-4">{session.title}</h1>
-      <p className="text-gray-700 mb-2">
-        <span className="font-semibold">Tutor:</span> {session.tutorName}
+   <div className="max-w-5xl mx-auto px-4 py-10">
+  {/* Session Header */}
+  <div className="bg-white shadow-lg rounded-xl p-6 mb-8 border">
+    <h1 className="text-3xl font-bold mb-4 text-center text-blue-700">
+      {session.title}
+    </h1>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
+      <p>
+        <span className="font-semibold">👨‍🏫 Tutor:</span> {session.tutorName}
       </p>
-      <p className="text-gray-700 mb-2">
-        <span className="font-semibold">Average Rating:</span> {session.averageRating || 0}
+      <p>
+        <span className="font-semibold">⭐ Average Rating:</span>{" "}
+        {session.averageRating || 0}
       </p>
-      <p className="text-gray-700 mb-2">{session.description}</p>
-      <p className="text-gray-700 mb-2">
+      <p className="md:col-span-2">{session.description}</p>
+    </div>
+  </div>
+
+  {/* Session Info */}
+  <div className="bg-gray-50 shadow-md rounded-xl p-6 mb-8 border">
+    <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+      📅 Session Information
+    </h2>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700">
+      <p>
         <span className="font-semibold">Registration Start:</span>{" "}
         {new Date(session.registrationStart).toLocaleString()}
       </p>
-      <p className="text-gray-700 mb-2">
+      <p>
         <span className="font-semibold">Registration End:</span>{" "}
         {new Date(session.registrationEnd).toLocaleString()}
       </p>
-      <p className="text-gray-700 mb-2">
+      <p>
         <span className="font-semibold">Class Start:</span>{" "}
         {new Date(session.classStart).toLocaleString()}
       </p>
-      <p className="text-gray-700 mb-2">
+      <p>
         <span className="font-semibold">Class End:</span>{" "}
         {new Date(session.classEnd).toLocaleString()}
       </p>
-      <p className="text-gray-700 mb-2">
+      <p>
         <span className="font-semibold">Duration:</span> {session.duration}
       </p>
-      <p className="text-gray-700 mb-4">
-        <span className="font-semibold">Registration Fee:</span>{" "}
-        {session.registrationFee === 0 ? "Free" : `$${session.registrationFee}`}
+      <p>
+        <span className="font-semibold">Fee:</span>{" "}
+        {session.registrationFee === 0
+          ? "Free"
+          : `$${session.registrationFee}`}
       </p>
-
-      <button
-        disabled={!canBook}
-        onClick={handleBookNow}
-        className={`btn px-5 py-2 rounded-lg ${
-          canBook ? "bg-green-600 text-white hover:bg-green-700" : "bg-gray-400 cursor-not-allowed"
-        }`}
-      >
-        {registrationClosed ? "Registration Closed" : "Book Now"}
-      </button>
-
-      <hr className="my-6" />
-
-      <h2 className="text-2xl font-semibold mb-4">Reviews</h2>
-      {reviews.length === 0 ? (
-        <p>No reviews yet.</p>
-      ) : (
-        <div className="space-y-4">
-          {reviews.map((rev) => (
-            <div key={rev._id} className="p-3 border rounded-lg bg-gray-50">
-              <p className="font-semibold">{rev.studentName}</p>
-              <p>Rating: {rev.rating}</p>
-              <p>{rev.comment}</p>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
+  </div>
+
+  {/* Book Button */}
+  <div className="text-center mb-10">
+    <button
+      disabled={!canBook}
+      onClick={handleBookNow}
+      className={`px-6 py-3 text-lg font-semibold rounded-lg transition ${
+        canBook
+          ? "bg-green-600 text-white hover:bg-green-700"
+          : "bg-gray-400 text-gray-100 cursor-not-allowed"
+      }`}
+    >
+      {registrationClosed ? "Registration Closed" : "Book Now"}
+    </button>
+  </div>
+
+  {/* Reviews Section */}
+  <div className="bg-white shadow-lg rounded-xl p-6 border">
+    <h2 className="text-2xl font-semibold mb-4 text-gray-800">💬 Reviews</h2>
+    {reviews.length === 0 ? (
+      <p className="text-gray-600 italic">No reviews yet.</p>
+    ) : (
+      <div className="space-y-4">
+        {reviews.map((rev) => (
+          <div
+            key={rev._id}
+            className="p-4 border rounded-lg bg-gray-50 shadow-sm"
+          >
+            <p className="font-semibold text-blue-600">{rev.studentName}</p>
+            <p className="text-yellow-600">⭐ {rev.rating}</p>
+            <p className="text-gray-700">{rev.comment}</p>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+</div>
+
   );
 };
 

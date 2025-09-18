@@ -6,6 +6,8 @@ import StudySessions from "../pages/studySessions.jsx/StudySessions";
 import AuthLayout from "../layouts/AuthLayout";
 import Login from "../pages/authentication/Login";
 import Register from "../pages/authentication/Register";
+import SessionDetails from "../pages/studySessions.jsx/SessionDetails";
+import PrivateRoute from "../routes/PrivateRoute";
 
 export const router = createBrowserRouter([
   {
@@ -24,9 +26,17 @@ export const router = createBrowserRouter([
         path: "studySessions",
         Component: StudySessions,
       },
-    ]
-},
- {
+      {
+        path: "/sessions/:id",
+        element: (
+          <PrivateRoute>
+            <SessionDetails></SessionDetails>
+          </PrivateRoute>
+        ),
+      },
+    ],
+  },
+  {
     path: "/",
     Component: AuthLayout,
     children: [
@@ -40,4 +50,4 @@ export const router = createBrowserRouter([
       },
     ],
   },
-])
+]);
