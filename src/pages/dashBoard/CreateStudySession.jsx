@@ -4,11 +4,13 @@ import { useMutation } from "@tanstack/react-query";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import useAuth from "../../hooks/UseAuth";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router";
 
 const CreateStudySession = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const { register, handleSubmit, reset } = useForm();
+  const navigate = useNavigate();
 
   const mutation = useMutation({
     mutationFn: async (data) => {
@@ -18,6 +20,7 @@ const CreateStudySession = () => {
     onSuccess: () => {
       toast.success("Session created successfully! ✅ (Waiting for approval)");
       reset();
+      navigate("/dashboard/my-sessions");
     },
     onError: () => {
       toast.error("Failed to create session ❌");

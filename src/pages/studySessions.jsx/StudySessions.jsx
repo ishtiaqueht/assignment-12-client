@@ -3,17 +3,25 @@ import { Link } from "react-router";
 import UseAxios from "../../hooks/UseAxios";
 
 const StudySessions = () => {
-  const { data: sessions = [], isLoading, isError } = useQuery({
-    queryKey: ["sessions"],
+  const {
+    data: sessions = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["approved-sessions"],
     queryFn: async () => {
       const axiosInstance = UseAxios();
-      const res = await axiosInstance.get("/sessions");
+      const res = await axiosInstance.get("/sessions/approved"); // only approved fetch
       return res.data;
     },
   });
 
-  if (isLoading) return <p className="text-center mt-10">Loading sessions...</p>;
-  if (isError) return <p className="text-center mt-10 text-red-500">Failed to load sessions.</p>;
+  if (isLoading)
+    return <p className="text-center mt-10">Loading sessions...</p>;
+  if (isError)
+    return (
+      <p className="text-center mt-10 text-red-500">Failed to load sessions.</p>
+    );
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
