@@ -9,6 +9,7 @@ const ManageSessions = () => {
 
   const [rejectSession, setRejectSession] = useState(null);
   const [approveSession, setApproveSession] = useState(null);
+  const [updateSession, setUpdateSession] = useState(null);
 
   const [reason, setReason] = useState("");
   const [feedback, setFeedback] = useState("");
@@ -16,16 +17,31 @@ const ManageSessions = () => {
   const [isPaid, setIsPaid] = useState(false);
   const [fee, setFee] = useState(0);
 
-  // Fetch all pending sessions
+  const [newTitle, setNewTitle] = useState("");
+
+  // Pending sessions
   const {
-    data: sessions = [],
-    isLoading,
-    isError,
+    data: pendingSessions = [],
+    isLoading: pendingLoading,
+    isError: pendingError,
   } = useQuery({
     queryKey: ["pending-sessions"],
     queryFn: async () => {
       const res = await axios.get("/sessions");
-      return res.data.filter((session) => session.status === "pending");
+      return res.data.filter((s) => s.status === "pending");
+    },
+  });
+
+  // Approved sessions
+  const {
+    data: approvedSessions = [],
+    isLoading: approvedLoading,
+    isError: approvedError,
+  } = useQuery({
+    queryKey: ["approved-sessions"],
+    queryFn: async () => {
+      const res = await axios.get("/sessions");
+      return res.data.filter((s) => s.status === "approved");
     },
   });
 
@@ -35,14 +51,13 @@ const ManageSessions = () => {
       axios.patch(`/sessions/${id}/approve`, { isPaid, fee }),
     onSuccess: () => {
       queryClient.invalidateQueries(["pending-sessions"]);
+      queryClient.invalidateQueries(["approved-sessions"]);
       toast.success("Session approved ✅");
       setApproveSession(null);
       setIsPaid(false);
       setFee(0);
     },
-    onError: (err) => {
-      toast.error(err.response?.data?.message || "Failed to approve ❌");
-    },
+    onError: () => toast.error("Failed to approve ❌"),
   });
 
   // Reject mutation
@@ -56,33 +71,49 @@ const ManageSessions = () => {
       setReason("");
       setFeedback("");
     },
-    onError: (err) => {
-      toast.error(err.response?.data?.message || "Failed to reject ❌");
-    },
+    onError: () => toast.error("Failed to reject ❌"),
   });
 
-  if (isLoading)
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (id) => axios.delete(`/sessions/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["approved-sessions"]);
+      toast.success("Session deleted 🗑️");
+    },
+    onError: () => toast.error("Failed to delete ❌"),
+  });
+
+  // Update mutation
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, title }) =>
+      axios.patch(`/sessions/${id}`, { title }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["approved-sessions"]);
+      toast.success("Session updated ✏️");
+      setUpdateSession(null);
+      setNewTitle("");
+    },
+    onError: () => toast.error("Failed to update ❌"),
+  });
+
+  if (pendingLoading || approvedLoading)
     return <p className="text-center mt-10">Loading sessions...</p>;
-  if (isError)
-    return (
-      <p className="text-center mt-10 text-red-500">Failed to load sessions.</p>
-    );
+  if (pendingError || approvedError)
+    return <p className="text-center text-red-500 mt-10">Failed to load sessions.</p>;
 
   return (
     <div className="max-w-6xl mx-auto py-10 px-4">
-      <h1 className="text-3xl font-bold mb-6 text-center">
-        Manage Study Sessions
-      </h1>
+      <h1 className="text-3xl font-bold mb-6 text-center">Manage Study Sessions</h1>
 
-      {sessions.length === 0 ? (
-        <p className="text-center">No pending sessions.</p>
+      {/* Pending Sessions */}
+      <h2 className="text-2xl font-semibold mb-4">Pending Sessions</h2>
+      {pendingSessions.length === 0 ? (
+        <p>No pending sessions.</p>
       ) : (
         <div className="space-y-4">
-          {sessions.map((session) => (
-            <div
-              key={session._id}
-              className="border p-4 rounded-lg shadow flex flex-col md:flex-row justify-between items-start md:items-center"
-            >
+          {pendingSessions.map((session) => (
+            <div key={session._id} className="border p-4 rounded-lg shadow flex flex-col md:flex-row justify-between items-start md:items-center">
               <div>
                 <h2 className="font-semibold text-lg">{session.title}</h2>
                 <p className="text-gray-600">Tutor: {session.tutorName}</p>
@@ -107,15 +138,46 @@ const ManageSessions = () => {
         </div>
       )}
 
+      {/* Approved Sessions */}
+      <h2 className="text-2xl font-semibold mt-10 mb-4">Approved Sessions</h2>
+      {approvedSessions.length === 0 ? (
+        <p>No approved sessions.</p>
+      ) : (
+        <div className="space-y-4">
+          {approvedSessions.map((session) => (
+            <div key={session._id} className="border p-4 rounded-lg shadow flex flex-col md:flex-row justify-between items-start md:items-center">
+              <div>
+                <h2 className="font-semibold text-lg">{session.title}</h2>
+                <p className="text-gray-600">Tutor: {session.tutorName}</p>
+                <p className="text-gray-600">Fee: {session.registrationFee}</p>
+              </div>
+              <div className="flex gap-2 mt-2 md:mt-0">
+                <button
+                  onClick={() => {
+                    setUpdateSession(session);
+                    setNewTitle(session.title);
+                  }}
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                >
+                  Update
+                </button>
+                <button
+                  onClick={() => deleteMutation.mutate(session._id)}
+                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Reject Modal */}
       {rejectSession && (
-        <dialog id="reject_modal" className="modal modal-open">
+        <dialog className="modal modal-open">
           <div className="modal-box">
             <h3 className="font-bold text-lg mb-4">Reject Session</h3>
-            <p className="text-gray-600 mb-3">
-              Session:{" "}
-              <span className="font-semibold">{rejectSession.title}</span>
-            </p>
             <div className="form-control mb-3">
               <label className="label">Rejection Reason</label>
               <input
@@ -136,8 +198,7 @@ const ManageSessions = () => {
             <div className="modal-action">
               <button
                 onClick={() => {
-                  if (!reason)
-                    return toast.error("Rejection reason required ❌");
+                  if (!reason) return toast.error("Rejection reason required ❌");
                   rejectMutation.mutate({
                     id: rejectSession._id,
                     reason,
@@ -148,10 +209,7 @@ const ManageSessions = () => {
               >
                 Submit Reject
               </button>
-              <button
-                onClick={() => setRejectSession(null)}
-                className="btn btn-ghost"
-              >
+              <button onClick={() => setRejectSession(null)} className="btn btn-ghost">
                 Cancel
               </button>
             </div>
@@ -161,14 +219,9 @@ const ManageSessions = () => {
 
       {/* Approve Modal */}
       {approveSession && (
-        <dialog id="approve_modal" className="modal modal-open">
+        <dialog className="modal modal-open">
           <div className="modal-box">
             <h3 className="font-bold text-lg mb-4">Approve Session</h3>
-            <p className="text-gray-600 mb-3">
-              Session:{" "}
-              <span className="font-semibold">{approveSession.title}</span>
-            </p>
-
             <div className="form-control mb-3">
               <label className="label">Is this session Free or Paid?</label>
               <select
@@ -177,11 +230,7 @@ const ManageSessions = () => {
                 onChange={(e) => {
                   const paid = e.target.value === "paid";
                   setIsPaid(paid);
-                  if (paid) {
-                    setFee("");
-                  } else {
-                    setFee(0);
-                  }
+                  setFee(paid ? "" : 0);
                 }}
               >
                 <option value="free">Free</option>
@@ -218,10 +267,39 @@ const ManageSessions = () => {
               >
                 Submit Approve
               </button>
+              <button onClick={() => setApproveSession(null)} className="btn btn-ghost">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </dialog>
+      )}
+
+      {/* Update Modal */}
+      {updateSession && (
+        <dialog className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg mb-4">Update Session</h3>
+            <div className="form-control mb-3">
+              <label className="label">Title</label>
+              <input
+                type="text"
+                className="input input-bordered w-full"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+              />
+            </div>
+            <div className="modal-action">
               <button
-                onClick={() => setApproveSession(null)}
-                className="btn btn-ghost"
+                onClick={() => {
+                  if (!newTitle) return toast.error("Title required ❌");
+                  updateMutation.mutate({ id: updateSession._id, title: newTitle });
+                }}
+                className="btn bg-blue-500 text-white"
               >
+                Submit Update
+              </button>
+              <button onClick={() => setUpdateSession(null)} className="btn btn-ghost">
                 Cancel
               </button>
             </div>
