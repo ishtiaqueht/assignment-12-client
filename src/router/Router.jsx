@@ -14,6 +14,7 @@ import BeATutor from "../pages/dashBoard/BeATutor";
 import ApproveTutors from "../pages/dashBoard/ApproveTutors";
 import CreateStudySession from "../pages/dashBoard/CreateStudySession";
 import MySessions from "../pages/dashBoard/MySessions";
+import ManageSessions from "../pages/dashBoard/ManageSessions";
 
 export const router = createBrowserRouter([
   {
@@ -65,7 +66,7 @@ export const router = createBrowserRouter([
       // Admin
       { path:"manageUsers", element: <MakeRole /> },
       { path: "approve-tutors", element: <ApproveTutors /> },
-      { path: "all-sessions", element: <div>Manage Sessions Page</div> },
+      { path: "all-sessions", element: <ManageSessions></ManageSessions> },
       { path: "all-materials", element: <div>Manage Materials Page</div> },
     ],
   },
