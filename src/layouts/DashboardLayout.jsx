@@ -75,10 +75,9 @@ const DashboardLayout = () => {
             {/* Admin Routes */}
             {role === "admin" && (
               <>
-                <NavLink to="/dashboard/users" className={activeClass}>
-                  Manage Users
+                <NavLink to="/dashboard/manageUsers" className={activeClass}>
+                  View all users
                 </NavLink>
-
                 <NavLink to="/dashboard/all-sessions" className={activeClass}>
                   Manage Study Sessions
                 </NavLink>
@@ -88,9 +87,7 @@ const DashboardLayout = () => {
                 <NavLink to="/dashboard/approve-tutors" className={activeClass}>
                   Approve Tutors
                 </NavLink>
-                <NavLink to="/dashboard/manageUsers" className={activeClass}>
-                  Manage Admin
-                </NavLink>
+                
               </>
             )}
           </nav>
