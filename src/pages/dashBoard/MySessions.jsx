@@ -16,10 +16,10 @@ const MySessions = () => {
       const res = await axiosSecure.get(`sessions/tutor/${user?.email}`);
       return res.data;
     },
-    enabled: !!user?.email, // only run when email exists
+    enabled: !!user?.email,
   });
 
-  // ✅ Mutation for resubmitting rejected session
+  // ✅ Mutation with optimistic update
   const mutation = useMutation({
     mutationFn: async (id) => {
       const res = await axiosSecure.patch(`sessions/${id}`, {
@@ -27,12 +27,28 @@ const MySessions = () => {
       });
       return res.data;
     },
+    onMutate: async (id) => {
+      await queryClient.cancelQueries(["my-sessions", user?.email]);
+
+      const prevData = queryClient.getQueryData(["my-sessions", user?.email]);
+
+      // optimistic update
+      queryClient.setQueryData(["my-sessions", user?.email], (old) =>
+        old.map((s) => (s._id === id ? { ...s, status: "pending" } : s))
+      );
+
+      return { prevData };
+    },
+    onError: (err, id, context) => {
+      // rollback if failed
+      queryClient.setQueryData(["my-sessions", user?.email], context.prevData);
+      toast.error("Failed to send request ❌");
+    },
     onSuccess: () => {
       toast.success("Approval request sent again ✅");
-      queryClient.invalidateQueries(["my-sessions", user?.email]);
     },
-    onError: () => {
-      toast.error("Failed to send request ❌");
+    onSettled: () => {
+      queryClient.invalidateQueries(["my-sessions", user?.email]);
     },
   });
 
@@ -45,7 +61,9 @@ const MySessions = () => {
       </h2>
 
       {sessions.length === 0 ? (
-        <p className="text-center text-gray-600">You have not created any sessions yet.</p>
+        <p className="text-center text-gray-600">
+          You have not created any sessions yet.
+        </p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full border border-gray-200 rounded-lg">
@@ -70,7 +88,19 @@ const MySessions = () => {
                       <span className="text-green-600">✅ Approved</span>
                     )}
                     {session.status === "rejected" && (
-                      <span className="text-red-600">❌ Rejected</span>
+                      <div className="text-red-600">
+                        ❌ Rejected
+                        <div className="text-sm text-gray-500">
+                          <p>
+                            <strong>Reason:</strong>{" "}
+                            {session.rejectionReason || "N/A"}
+                          </p>
+                          <p>
+                            <strong>Feedback:</strong>{" "}
+                            {session.rejectionFeedback || "N/A"}
+                          </p>
+                        </div>
+                      </div>
                     )}
                   </td>
                   <td className="p-3 text-center">

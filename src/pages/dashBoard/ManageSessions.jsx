@@ -13,10 +13,8 @@ const ManageSessions = () => {
 
   const [reason, setReason] = useState("");
   const [feedback, setFeedback] = useState("");
-
   const [isPaid, setIsPaid] = useState(false);
   const [fee, setFee] = useState(0);
-
   const [newTitle, setNewTitle] = useState("");
 
   // Pending sessions
@@ -50,8 +48,8 @@ const ManageSessions = () => {
     mutationFn: async ({ id, isPaid, fee }) =>
       axios.patch(`/sessions/${id}/approve`, { isPaid, fee }),
     onSuccess: () => {
-      queryClient.invalidateQueries(["pending-sessions"]);
-      queryClient.invalidateQueries(["approved-sessions"]);
+      queryClient.invalidateQueries({ queryKey: ["pending-sessions"] });
+      queryClient.invalidateQueries({ queryKey: ["approved-sessions"] });
       toast.success("Session approved ✅");
       setApproveSession(null);
       setIsPaid(false);
@@ -65,7 +63,7 @@ const ManageSessions = () => {
     mutationFn: async ({ id, reason, feedback }) =>
       axios.patch(`/sessions/${id}/reject`, { reason, feedback }),
     onSuccess: () => {
-      queryClient.invalidateQueries(["pending-sessions"]);
+      queryClient.invalidateQueries({ queryKey: ["pending-sessions"] });
       toast.success("Session rejected ❌");
       setRejectSession(null);
       setReason("");
@@ -78,7 +76,7 @@ const ManageSessions = () => {
   const deleteMutation = useMutation({
     mutationFn: async (id) => axios.delete(`/sessions/${id}`),
     onSuccess: () => {
-      queryClient.invalidateQueries(["approved-sessions"]);
+      queryClient.invalidateQueries({ queryKey: ["approved-sessions"] });
       toast.success("Session deleted 🗑️");
     },
     onError: () => toast.error("Failed to delete ❌"),
@@ -89,7 +87,7 @@ const ManageSessions = () => {
     mutationFn: async ({ id, title }) =>
       axios.patch(`/sessions/${id}`, { title }),
     onSuccess: () => {
-      queryClient.invalidateQueries(["approved-sessions"]);
+      queryClient.invalidateQueries({ queryKey: ["approved-sessions"] });
       toast.success("Session updated ✏️");
       setUpdateSession(null);
       setNewTitle("");
@@ -100,11 +98,17 @@ const ManageSessions = () => {
   if (pendingLoading || approvedLoading)
     return <p className="text-center mt-10">Loading sessions...</p>;
   if (pendingError || approvedError)
-    return <p className="text-center text-red-500 mt-10">Failed to load sessions.</p>;
+    return (
+      <p className="text-center text-red-500 mt-10">
+        Failed to load sessions.
+      </p>
+    );
 
   return (
     <div className="max-w-6xl mx-auto py-10 px-4">
-      <h1 className="text-3xl font-bold mb-6 text-center">Manage Study Sessions</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center">
+        Manage Study Sessions
+      </h1>
 
       {/* Pending Sessions */}
       <h2 className="text-2xl font-semibold mb-4">Pending Sessions</h2>
@@ -113,7 +117,10 @@ const ManageSessions = () => {
       ) : (
         <div className="space-y-4">
           {pendingSessions.map((session) => (
-            <div key={session._id} className="border p-4 rounded-lg shadow flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div
+              key={session._id}
+              className="border p-4 rounded-lg shadow flex flex-col md:flex-row justify-between items-start md:items-center"
+            >
               <div>
                 <h2 className="font-semibold text-lg">{session.title}</h2>
                 <p className="text-gray-600">Tutor: {session.tutorName}</p>
@@ -145,7 +152,10 @@ const ManageSessions = () => {
       ) : (
         <div className="space-y-4">
           {approvedSessions.map((session) => (
-            <div key={session._id} className="border p-4 rounded-lg shadow flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div
+              key={session._id}
+              className="border p-4 rounded-lg shadow flex flex-col md:flex-row justify-between items-start md:items-center"
+            >
               <div>
                 <h2 className="font-semibold text-lg">{session.title}</h2>
                 <p className="text-gray-600">Tutor: {session.tutorName}</p>
@@ -209,7 +219,10 @@ const ManageSessions = () => {
               >
                 Submit Reject
               </button>
-              <button onClick={() => setRejectSession(null)} className="btn btn-ghost">
+              <button
+                onClick={() => setRejectSession(null)}
+                className="btn btn-ghost"
+              >
                 Cancel
               </button>
             </div>
@@ -267,7 +280,10 @@ const ManageSessions = () => {
               >
                 Submit Approve
               </button>
-              <button onClick={() => setApproveSession(null)} className="btn btn-ghost">
+              <button
+                onClick={() => setApproveSession(null)}
+                className="btn btn-ghost"
+              >
                 Cancel
               </button>
             </div>
@@ -293,13 +309,19 @@ const ManageSessions = () => {
               <button
                 onClick={() => {
                   if (!newTitle) return toast.error("Title required ❌");
-                  updateMutation.mutate({ id: updateSession._id, title: newTitle });
+                  updateMutation.mutate({
+                    id: updateSession._id,
+                    title: newTitle,
+                  });
                 }}
                 className="btn bg-blue-500 text-white"
               >
                 Submit Update
               </button>
-              <button onClick={() => setUpdateSession(null)} className="btn btn-ghost">
+              <button
+                onClick={() => setUpdateSession(null)}
+                className="btn btn-ghost"
+              >
                 Cancel
               </button>
             </div>

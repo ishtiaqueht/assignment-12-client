@@ -36,19 +36,25 @@ const MyMaterials = () => {
     onError: () => toast.error("Delete failed"),
   });
 
-  // ✅ Update material
   const updateMutation = useMutation({
-    mutationFn: async (updated) => {
-      const res = await axiosInstance.put(`/materials/${updated._id}`, updated);
-      return res.data;
-    },
-    onSuccess: () => {
-      toast.success("Material updated ✅");
-      queryClient.invalidateQueries(["materials", user?.email]);
-      setEditMaterial(null);
-    },
-    onError: () => toast.error("Update failed"),
-  });
+  mutationFn: async (updated) => {
+    // শুধু allowed field পাঠাও
+    const { _id, title, image, link } = updated;
+    const res = await axiosInstance.put(`/materials/${_id}`, {
+      title,
+      image,
+      link,
+    });
+    return res.data;
+  },
+  onSuccess: () => {
+    toast.success("Material updated ✅");
+    queryClient.invalidateQueries(["materials", user?.email]);
+    setEditMaterial(null);
+  },
+  onError: () => toast.error("Update failed ❌"),
+});
+
 
   if (isLoading) return <p className="text-center mt-8">Loading materials...</p>;
 

@@ -17,6 +17,7 @@ import MySessions from "../pages/dashBoard/MySessions";
 import ManageSessions from "../pages/dashBoard/ManageSessions";
 import UploadMaterials from "../pages/dashBoard/UploadMeterials";
 import MyMaterials from "../pages/dashBoard/MyMeterials";
+import ManageMaterials from "../pages/dashBoard/ManageMaterials";
 
 export const router = createBrowserRouter([
   {
@@ -69,7 +70,7 @@ export const router = createBrowserRouter([
       { path:"manageUsers", element: <MakeRole /> },
       { path: "approve-tutors", element: <ApproveTutors /> },
       { path: "all-sessions", element: <ManageSessions></ManageSessions> },
-      { path: "all-materials", element: <div>Manage Materials Page</div> },
+      { path: "all-materials", element: <ManageMaterials></ManageMaterials> },
     ],
   },
 ]);
