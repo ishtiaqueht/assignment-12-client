@@ -1,23 +1,40 @@
 import { useParams } from "react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import useAxios from "../../hooks/UseAxios";
 import useAuth from "../../hooks/UseAuth";
+import useRole from "../../hooks/useRole";
 import { useState } from "react";
+import { toast } from "react-toastify";
+import useAxios from "../../hooks/UseAxios";
 
 const SessionDetails = () => {
   const { id } = useParams();
   const axiosInstance = useAxios();
   const { user } = useAuth();
+  const { role, roleLoading } = useRole();
   const queryClient = useQueryClient();
 
   // ✅ Fetch single session
-  const { data: session, isLoading } = useQuery({
+  const { data: session, isLoading: sessionLoading } = useQuery({
     queryKey: ["session", id],
     queryFn: async () => {
       const res = await axiosInstance.get(`/sessions/${id}`);
       return res.data;
     },
   });
+
+  // ✅ Check if current student already booked
+  const { data: bookingStatus } = useQuery({
+    queryKey: ["bookingStatus", id, user?.email],
+    enabled: !!user?.email && role === "student",
+    queryFn: async () => {
+      const res = await axiosInstance.get(
+        `/bookedSessions/${id}/${user.email}`
+      );
+      return res.data;
+    },
+  });
+
+  const alreadyBooked = bookingStatus?.booked;
 
   // ✅ Fetch reviews
   const { data: reviews = [] } = useQuery({
@@ -31,49 +48,67 @@ const SessionDetails = () => {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
 
-  // ✅ Add review
+  // ✅ Add review (only for booked students)
   const reviewMutation = useMutation({
     mutationFn: async (newReview) => {
       await axiosInstance.post("/reviews", newReview);
     },
     onSuccess: () => {
+      // Refresh reviews and session (to update averageRating)
       queryClient.invalidateQueries(["sessionReviews", id]);
+      queryClient.invalidateQueries(["session", id]);
       setRating(5);
       setComment("");
+      toast.success("Review added ✅");
+    },
+    onError: (err) => {
+      console.error("Add review error:", err);
+      toast.error(err.response?.data?.message || "Failed to add review ❌");
     },
   });
 
-  if (isLoading) return <p className="text-center mt-10">Loading session...</p>;
-
-  const registrationClosed = new Date(session.registrationEnd) < new Date();
-  const canBook =
-    !registrationClosed && user && user.role === "student";
-
-  const handleBookNow = async () => {
-    if (!canBook) return;
-    try {
+  // ✅ Book session mutation
+  const bookMutation = useMutation({
+    mutationFn: async () => {
       if (session.registrationFee > 0) {
-        // Redirect to payment page
         window.location.href = `/payment/${session._id}`;
       } else {
-        // Free booking
-        await axiosInstance.post("/bookedSessions", {
+        return await axiosInstance.post("/bookedSessions", {
           sessionId: session._id,
           studentEmail: user.email,
           tutorEmail: session.tutorEmail,
           bookedAt: new Date().toISOString(),
+          sessionTitle: session.title,
+          registrationFee: session.registrationFee,
         });
-        alert("Session booked successfully!");
       }
-    } catch (err) {
+    },
+    onSuccess: () => {
+      toast.success("Session booked successfully 🎉");
+      queryClient.invalidateQueries(["session", id]);
+      queryClient.invalidateQueries(["bookingStatus", id, user.email]);
+    },
+    onError: (err) => {
       console.error(err);
-      alert("Failed to book session");
-    }
+      toast.error(err.response?.data?.message || "Failed to book session ❌");
+    },
+  });
+
+  if (sessionLoading || roleLoading)
+    return <p className="text-center mt-10">Loading session...</p>;
+
+  const registrationClosed = new Date(session.registrationEnd) < new Date();
+  const canBook = !registrationClosed && role === "student" && !alreadyBooked;
+
+  const handleBookNow = () => {
+    if (!canBook) return;
+    bookMutation.mutate();
   };
 
   const handleAddReview = (e) => {
     e.preventDefault();
-    if (!user) return alert("Please login to add a review");
+    if (!user) return toast.error("Please login to add a review");
+    if (!alreadyBooked) return toast.error("You must book this session first");
 
     const newReview = {
       sessionId: session._id,
@@ -140,23 +175,31 @@ const SessionDetails = () => {
       </div>
 
       {/* Book Button */}
-      <div className="text-center mb-10">
-        <button
-          disabled={!canBook}
-          onClick={handleBookNow}
-          className={`px-6 py-3 text-lg font-semibold rounded-lg transition ${
-            canBook
-              ? "bg-green-600 text-white hover:bg-green-700"
-              : "bg-gray-400 text-gray-100 cursor-not-allowed"
-          }`}
-        >
-          {registrationClosed ? "Registration Closed" : "Book Now"}
-        </button>
-      </div>
+      {role === "student" && (
+        <div className="text-center mb-10">
+          <button
+            disabled={!canBook}
+            onClick={handleBookNow}
+            className={`px-6 py-3 text-lg font-semibold rounded-lg transition ${
+              !canBook
+                ? "bg-gray-400 text-gray-100 cursor-not-allowed"
+                : "bg-green-600 text-white hover:bg-green-700"
+            }`}
+          >
+            {alreadyBooked
+              ? "Booked"
+              : registrationClosed
+              ? "Registration Closed"
+              : "Book Now"}
+          </button>
+        </div>
+      )}
 
       {/* Reviews Section */}
       <div className="bg-white shadow-lg rounded-xl p-6 border">
-        <h2 className="text-2xl font-semibold mb-4 text-gray-800">💬 Reviews</h2>
+        <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+          💬 Reviews
+        </h2>
         {reviews.length === 0 ? (
           <p className="text-gray-600 italic">No reviews yet.</p>
         ) : (
@@ -175,7 +218,7 @@ const SessionDetails = () => {
         )}
 
         {/* Review Form */}
-        {user && user.role === "student" && (
+        {role === "student" && alreadyBooked && (
           <form onSubmit={handleAddReview} className="space-y-4">
             <h3 className="text-lg font-semibold">Write a Review</h3>
             <select

@@ -18,6 +18,7 @@ import ManageSessions from "../pages/dashBoard/ManageSessions";
 import UploadMaterials from "../pages/dashBoard/UploadMeterials";
 import MyMaterials from "../pages/dashBoard/MyMeterials";
 import ManageMaterials from "../pages/dashBoard/ManageMaterials";
+import ViewBookedSession from "../pages/dashBoard/ViewBookedSession";
 
 export const router = createBrowserRouter([
   {
@@ -54,7 +55,7 @@ export const router = createBrowserRouter([
     ),
     children: [
       // Student
-      { path: "booked-sessions", element: <div>Booked Sessions Page</div> },
+      { path: "booked-sessions", element: <ViewBookedSession></ViewBookedSession> },
       { path: "create-note", element: <div>Create Note Page</div> },
       { path: "manage-notes", element: <div>Manage Notes Page</div> },
       { path: "study-materials", element: <div>Study Materials Page</div> },

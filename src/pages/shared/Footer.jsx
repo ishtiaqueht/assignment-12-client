@@ -8,8 +8,10 @@ import {
   FaTelegram,
 } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
+import useAuth from "../../hooks/UseAuth";
 
 const Footer = () => {
+  const { user } = useAuth();
   return (
     <footer className="bg-white py-8 mt-12 border-t border-orange-200">
       <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12">
@@ -39,6 +41,11 @@ const Footer = () => {
                 Home
               </NavLink>
             </li>
+            {user && (
+                    <li>
+                      <NavLink to="/dashboard">Dashboard</NavLink>
+                    </li>
+                  )}
             <li>
               <NavLink
                 to="/tutors"

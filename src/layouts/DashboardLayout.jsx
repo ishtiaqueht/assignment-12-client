@@ -1,7 +1,7 @@
 import React from "react";
 import { Outlet, NavLink } from "react-router";
-import useRole from "../hooks/UseRole";
 import Logo from "../pages/shared/Logo";
+import useRole from "../hooks/useRole";
 
 const DashboardLayout = () => {
   const { role, roleLoading } = useRole();
