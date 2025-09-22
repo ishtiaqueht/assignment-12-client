@@ -19,6 +19,9 @@ import UploadMaterials from "../pages/dashBoard/UploadMeterials";
 import MyMaterials from "../pages/dashBoard/MyMeterials";
 import ManageMaterials from "../pages/dashBoard/ManageMaterials";
 import ViewBookedSession from "../pages/dashBoard/ViewBookedSession";
+import ViewStudyMaterials from "../pages/dashBoard/ViewStudyMaterials";
+import CreateNote from "../pages/dashBoard/CreateNote";
+import ManagePersonalNotes from "../pages/dashBoard/ManagePersonalNotes";
 
 export const router = createBrowserRouter([
   {
@@ -56,9 +59,9 @@ export const router = createBrowserRouter([
     children: [
       // Student
       { path: "booked-sessions", element: <ViewBookedSession></ViewBookedSession> },
-      { path: "create-note", element: <div>Create Note Page</div> },
-      { path: "manage-notes", element: <div>Manage Notes Page</div> },
-      { path: "study-materials", element: <div>Study Materials Page</div> },
+      { path: "create-note", element: <CreateNote></CreateNote> },
+      { path: "manage-notes", element: <ManagePersonalNotes></ManagePersonalNotes> },
+      { path: "study-materials", element: <ViewStudyMaterials></ViewStudyMaterials> },
       { path: "be-a-tutor", element: <BeATutor /> },
 
       // Tutor

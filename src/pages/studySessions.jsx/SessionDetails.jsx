@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import useAuth from "../../hooks/UseAuth";
 import useRole from "../../hooks/useRole";
@@ -12,6 +12,7 @@ const SessionDetails = () => {
   const { user } = useAuth();
   const { role, roleLoading } = useRole();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   // ✅ Fetch single session
   const { data: session, isLoading: sessionLoading } = useQuery({
@@ -71,7 +72,7 @@ const SessionDetails = () => {
   const bookMutation = useMutation({
     mutationFn: async () => {
       if (session.registrationFee > 0) {
-        window.location.href = `/payment/${session._id}`;
+        navigate(`/payment/${session._id}`);
       } else {
         return await axiosInstance.post("/bookedSessions", {
           sessionId: session._id,
