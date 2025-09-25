@@ -20,7 +20,7 @@ const BeATutor = () => {
       reset();
     },
     onError: (err) => {
-      console.error("Tutor request failed:", err.response);
+      // console.error("Tutor request failed:", err.response);
       toast.error(err.response?.data?.message || "Failed to send request ❌");
     },
   });

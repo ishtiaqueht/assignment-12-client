@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import UseAxios from "../../hooks/UseAxios";
 import useAuth from "../../hooks/UseAuth";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const MyMaterials = () => {
-  const axiosInstance = UseAxios();
+  const axiosInstance = useAxiosSecure();
   const queryClient = useQueryClient();
   const { user } = useAuth();
 

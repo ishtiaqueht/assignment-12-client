@@ -5,7 +5,7 @@ import Logo from '../pages/shared/Logo';
 
 const AuthLayout = () => {
     return (
-        <div className="p-12 bg-base-200">
+        <div className="p-12 bg-gradient-to-r from-white via-orange-50 to-orange-100">
             <div>
             <Logo></Logo>
             </div>

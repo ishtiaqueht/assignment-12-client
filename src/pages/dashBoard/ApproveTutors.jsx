@@ -1,10 +1,10 @@
 import React from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import useAxios from "../../hooks/UseAxios";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const ApproveTutors = () => {
-  const axios = useAxios();
+  const axios = useAxiosSecure();
   const queryClient = useQueryClient();
 
   // 🔹 Fetch pending tutor requests

@@ -1,11 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import useAuth from "../../hooks/UseAuth";
-import useAxios from "../../hooks/UseAxios";
 import { Link } from "react-router";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
+import { FaChalkboardTeacher, FaDollarSign } from "react-icons/fa";
+import { MdDateRange } from "react-icons/md";
 
 const ViewBookedSessions = () => {
   const { user } = useAuth();
-  const axiosInstance = useAxios();
+  const axiosInstance = useAxiosSecure();
 
   // ✅ Fetch booked sessions of this student
   const { data: bookedSessions = [], isLoading } = useQuery({
@@ -28,40 +30,58 @@ const ViewBookedSessions = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold mb-6 text-center text-blue-700">
-        My Booked Sessions
-      </h1>
+  <h1 className="text-3xl font-bold mb-10 text-center bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent drop-shadow">
+    My Booked Sessions
+  </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {bookedSessions.map((session) => (
-          <div
-            key={session._id}
-            className="bg-white shadow-lg rounded-xl p-6 border"
+  {bookedSessions.length === 0 ? (
+    <p className="text-center text-gray-500 italic">You haven’t booked any sessions yet.</p>
+  ) : (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {bookedSessions.map((session) => (
+        <div
+          key={session._id}
+          className="bg-white rounded-2xl border border-gray-200 shadow-md hover:shadow-2xl hover:scale-[1.02] transition transform p-6"
+        >
+          {/* Title */}
+          <h2 className="text-xl font-semibold text-gray-800 mb-3">
+            {session.sessionTitle}
+          </h2>
+
+          {/* Tutor */}
+          <p className="text-gray-700 mb-2 flex items-center gap-2">
+            <FaChalkboardTeacher className="text-orange-500" />
+            <span className="font-semibold">Tutor:</span> {session.tutorEmail}
+          </p>
+
+          {/* Booked At */}
+          <p className="text-gray-700 mb-2 flex items-center gap-2">
+            <MdDateRange className="text-blue-500" />
+            <span className="font-semibold">Booked At:</span>{" "}
+            {new Date(session.bookedAt).toLocaleString()}
+          </p>
+
+          {/* Fee */}
+          <p className="text-gray-700 mb-5 flex items-center gap-2">
+            <FaDollarSign className="text-green-600" />
+            <span className="font-semibold">Fee:</span>{" "}
+            {session.registrationFee === 0
+              ? "Free"
+              : `$${session.registrationFee}`}
+          </p>
+
+          {/* Button */}
+          <Link
+            to={`/sessions/${session.sessionId}`}
+            className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-medium shadow-md hover:from-blue-700 hover:to-indigo-800 transition"
           >
-            <h2 className="text-xl font-semibold text-gray-800 mb-2">
-              {session.sessionTitle}
-            </h2>
-            <p className="text-gray-700 mb-1">
-              <span className="font-semibold">Tutor:</span> {session.tutorEmail}
-            </p>
-            <p className="text-gray-700 mb-1">
-              <span className="font-semibold">Booked At:</span>{" "}
-              {new Date(session.bookedAt).toLocaleString()}
-            </p>
-            <p className="text-gray-700 mb-4">
-              <span className="font-semibold">Fee:</span>{" "}
-              {session.registrationFee === 0 ? "Free" : `$${session.registrationFee}`}
-            </p>
-            <Link
-              to={`/sessions/${session.sessionId}`}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              View Details
-            </Link>
-          </div>
-        ))}
-      </div>
+            View Details
+          </Link>
+        </div>
+      ))}
     </div>
+  )}
+</div>
   );
 };
 

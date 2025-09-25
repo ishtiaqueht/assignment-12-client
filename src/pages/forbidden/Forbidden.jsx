@@ -11,7 +11,7 @@ const Forbidden = () => {
             </p>
 
             <Link to="/" className="mt-6">
-                <button className="btn btn-primary text-black">Go to Home</button>
+                <button className="bg-gradient-to-r from-orange-400 to-orange-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:scale-105 transition">Go to Home</button>
             </Link>
         </div>
     );

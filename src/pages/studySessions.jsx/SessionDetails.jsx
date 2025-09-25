@@ -4,11 +4,13 @@ import useAuth from "../../hooks/UseAuth";
 import useRole from "../../hooks/useRole";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import useAxios from "../../hooks/UseAxios";
+import { FaChalkboardTeacher, FaStar, FaCalendarAlt, FaClock, FaDollarSign, FaRegComments } from "react-icons/fa";
+import { MdOutlineDateRange } from "react-icons/md";
+import useAxiosSecure from "../../hooks/UseAxiosSecure";
 
 const SessionDetails = () => {
   const { id } = useParams();
-  const axiosInstance = useAxios();
+  const axiosInstance = useAxiosSecure();
   const { user } = useAuth();
   const { role, roleLoading } = useRole();
   const queryClient = useQueryClient();
@@ -63,37 +65,40 @@ const SessionDetails = () => {
       toast.success("Review added ✅");
     },
     onError: (err) => {
-      console.error("Add review error:", err);
+      // console.error("Add review error:", err);
       toast.error(err.response?.data?.message || "Failed to add review ❌");
     },
   });
 
   // ✅ Book session mutation
-  const bookMutation = useMutation({
-    mutationFn: async () => {
-      if (session.registrationFee > 0) {
-        navigate(`/payment/${session._id}`);
-      } else {
-        return await axiosInstance.post("/bookedSessions", {
-          sessionId: session._id,
-          studentEmail: user.email,
-          tutorEmail: session.tutorEmail,
-          bookedAt: new Date().toISOString(),
-          sessionTitle: session.title,
-          registrationFee: session.registrationFee,
-        });
-      }
-    },
-    onSuccess: () => {
+ const bookMutation = useMutation({
+  mutationFn: async () => {
+    if (session.registrationFee > 0) {
+      navigate(`/payment/${session._id}`);
+      return null; 
+    } else {
+      return await axiosInstance.post("/bookedSessions", {
+        sessionId: session._id,
+        studentEmail: user.email,
+        tutorEmail: session.tutorEmail,
+        bookedAt: new Date().toISOString(),
+        sessionTitle: session.title,
+        registrationFee: session.registrationFee,
+      });
+    }
+  },
+  onSuccess: (data) => {
+    if (data) {
       toast.success("Session booked successfully 🎉");
       queryClient.invalidateQueries(["session", id]);
       queryClient.invalidateQueries(["bookingStatus", id, user.email]);
-    },
-    onError: (err) => {
-      console.error(err);
-      toast.error(err.response?.data?.message || "Failed to book session ❌");
-    },
-  });
+    }
+  },
+  onError: (err) => {
+    // console.error(err);
+    toast.error(err.response?.data?.message || "Failed to book session ❌");
+  },
+});
 
   if (sessionLoading || roleLoading)
     return <p className="text-center mt-10">Loading session...</p>;
@@ -123,133 +128,142 @@ const SessionDetails = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
-      {/* Session Header */}
-      <div className="bg-white shadow-lg rounded-xl p-6 mb-8 border">
-        <h1 className="text-3xl font-bold mb-4 text-center text-blue-700">
-          {session.title}
-        </h1>
+  {/* Session Header */}
+  <div className="bg-gradient-to-r from-orange-400 to-orange-600 text-white font-semibold  shadow-lg rounded-xl p-6 mb-8">
+    <h1 className="text-3xl font-bold mb-4 text-center drop-shadow-lg">
+      {session.title}
+    </h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-          <p>
-            <span className="font-semibold">👨‍🏫 Tutor:</span> {session.tutorName}
-          </p>
-          <p>
-            <span className="font-semibold">⭐ Average Rating:</span>{" "}
-            {session.averageRating || 0}
-          </p>
-          <p className="md:col-span-2">{session.description}</p>
-        </div>
-      </div>
-
-      {/* Session Info */}
-      <div className="bg-gray-50 shadow-md rounded-xl p-6 mb-8 border">
-        <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-          📅 Session Information
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700">
-          <p>
-            <span className="font-semibold">Registration Start:</span>{" "}
-            {new Date(session.registrationStart).toLocaleString()}
-          </p>
-          <p>
-            <span className="font-semibold">Registration End:</span>{" "}
-            {new Date(session.registrationEnd).toLocaleString()}
-          </p>
-          <p>
-            <span className="font-semibold">Class Start:</span>{" "}
-            {new Date(session.classStart).toLocaleString()}
-          </p>
-          <p>
-            <span className="font-semibold">Class End:</span>{" "}
-            {new Date(session.classEnd).toLocaleString()}
-          </p>
-          <p>
-            <span className="font-semibold">Duration:</span> {session.duration}
-          </p>
-          <p>
-            <span className="font-semibold">Fee:</span>{" "}
-            {session.registrationFee === 0
-              ? "Free"
-              : `$${session.registrationFee}`}
-          </p>
-        </div>
-      </div>
-
-      {/* Book Button */}
-      {role === "student" && (
-        <div className="text-center mb-10">
-          <button
-            disabled={!canBook}
-            onClick={handleBookNow}
-            className={`px-6 py-3 text-lg font-semibold rounded-lg transition ${
-              !canBook
-                ? "bg-gray-400 text-gray-100 cursor-not-allowed"
-                : "bg-green-600 text-white hover:bg-green-700"
-            }`}
-          >
-            {alreadyBooked
-              ? "Booked"
-              : registrationClosed
-              ? "Registration Closed"
-              : "Book Now"}
-          </button>
-        </div>
-      )}
-
-      {/* Reviews Section */}
-      <div className="bg-white shadow-lg rounded-xl p-6 border">
-        <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-          💬 Reviews
-        </h2>
-        {reviews.length === 0 ? (
-          <p className="text-gray-600 italic">No reviews yet.</p>
-        ) : (
-          <div className="space-y-4 mb-6">
-            {reviews.map((rev) => (
-              <div
-                key={rev._id}
-                className="p-4 border rounded-lg bg-gray-50 shadow-sm"
-              >
-                <p className="font-semibold text-blue-600">{rev.studentName}</p>
-                <p className="text-yellow-600">⭐ {rev.rating}</p>
-                <p className="text-gray-700">{rev.comment}</p>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Review Form */}
-        {role === "student" && alreadyBooked && (
-          <form onSubmit={handleAddReview} className="space-y-4">
-            <h3 className="text-lg font-semibold">Write a Review</h3>
-            <select
-              value={rating}
-              onChange={(e) => setRating(Number(e.target.value))}
-              className="border p-2 rounded w-20"
-            >
-              {[1, 2, 3, 4, 5].map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
-              ))}
-            </select>
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="Write your review..."
-              className="w-full border rounded p-2"
-              required
-            />
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Submit Review
-            </button>
-          </form>
-        )}
-      </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <p className="flex items-center gap-2">
+        <FaChalkboardTeacher className="text-xl" /> 
+        <span className="font-semibold">Tutor:</span> {session.tutorName}
+      </p>
+      <p className="flex items-center gap-2">
+        <FaStar className="text-yellow-300 text-xl" /> 
+        <span className="font-semibold">Average Rating:</span>{" "}
+        {session.averageRating || 0}
+      </p>
+      <p className="md:col-span-2">{session.description}</p>
     </div>
+  </div>
+
+  {/* Session Info */}
+  <div className="bg-white shadow-lg rounded-xl p-6 mb-8 border border-gray-200">
+    <h2 className="text-2xl font-semibold mb-4 text-gray-800 flex items-center gap-2">
+      <FaCalendarAlt className="text-orange-500" /> Session Information
+    </h2>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700">
+      <p className="flex items-center gap-2">
+        <MdOutlineDateRange className="text-blue-500" />
+        <span className="font-semibold">Registration Start:</span>{" "}
+        {new Date(session.registrationStart).toLocaleString()}
+      </p>
+      <p className="flex items-center gap-2">
+        <MdOutlineDateRange className="text-red-500" />
+        <span className="font-semibold">Registration End:</span>{" "}
+        {new Date(session.registrationEnd).toLocaleString()}
+      </p>
+      <p className="flex items-center gap-2">
+        <FaClock className="text-green-500" />
+        <span className="font-semibold">Class Start:</span>{" "}
+        {new Date(session.classStart).toLocaleString()}
+      </p>
+      <p className="flex items-center gap-2">
+        <FaClock className="text-purple-500" />
+        <span className="font-semibold">Class End:</span>{" "}
+        {new Date(session.classEnd).toLocaleString()}
+      </p>
+      <p>
+        <span className="font-semibold">Duration:</span> {session.duration}
+      </p>
+      <p className="flex items-center gap-2">
+        <FaDollarSign className="text-green-600" />
+        <span className="font-semibold">Fee:</span>{" "}
+        {session.registrationFee === 0
+          ? "Free"
+          : `$${session.registrationFee}`}
+      </p>
+    </div>
+  </div>
+
+  {/* Book Button */}
+  {role === "student" && (
+    <div className="text-center mb-10">
+      <button
+        disabled={!canBook}
+        onClick={handleBookNow}
+        className={`px-8 py-3 text-lg font-semibold rounded-full shadow-md transition-transform transform hover:scale-105 ${
+          !canBook
+            ? "bg-gray-400 text-gray-100 cursor-not-allowed"
+            : "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700"
+        }`}
+      >
+        {alreadyBooked
+          ? "Booked"
+          : registrationClosed
+          ? "Registration Closed"
+          : "Book Now"}
+      </button>
+    </div>
+  )}
+
+  {/* Reviews Section */}
+  <div className="bg-white shadow-lg rounded-xl p-6 border border-gray-200">
+    <h2 className="text-2xl font-semibold mb-4 text-gray-800 flex items-center gap-2">
+      <FaRegComments className="text-pink-500" /> Reviews
+    </h2>
+    {reviews.length === 0 ? (
+      <p className="text-gray-600 italic">No reviews yet.</p>
+    ) : (
+      <div className="space-y-4 mb-6">
+        {reviews.map((rev) => (
+          <div
+            key={rev._id}
+            className="p-4 border rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition"
+          >
+            <p className="font-semibold text-blue-600">{rev.studentName}</p>
+            <p className="text-yellow-600 flex items-center gap-1">
+              <FaStar /> {rev.rating}
+            </p>
+            <p className="text-gray-700">{rev.comment}</p>
+          </div>
+        ))}
+      </div>
+    )}
+
+    {/* Review Form */}
+    {role === "student" && alreadyBooked && (
+      <form onSubmit={handleAddReview} className="space-y-4">
+        <h3 className="text-lg font-semibold">Write a Review</h3>
+        <select
+          value={rating}
+          onChange={(e) => setRating(Number(e.target.value))}
+          className="border p-2 rounded w-24"
+        >
+          {[1, 2, 3, 4, 5].map((r) => (
+            <option key={r} value={r}>
+              {r}
+            </option>
+          ))}
+        </select>
+        <textarea
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          placeholder="Write your review..."
+          className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400"
+          required
+        />
+        <button
+          type="submit"
+          className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-lg hover:from-blue-700 hover:to-indigo-800 transition"
+        >
+          Submit Review
+        </button>
+      </form>
+    )}
+  </div>
+</div>
   );
 };
 

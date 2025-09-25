@@ -1,8 +1,8 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import useAuth from "../../hooks/UseAuth";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { toast } from "react-toastify";
+import useAxiosSecure from "../../hooks/UseAxiosSecure";
 
 const CreateNote = () => {
   const { user } = useAuth();

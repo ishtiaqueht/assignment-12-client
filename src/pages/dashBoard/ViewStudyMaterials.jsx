@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import useAuth from "../../hooks/UseAuth";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
+import { toast } from "react-toastify";
+import useAxiosSecure from "../../hooks/UseAxiosSecure";
 
 const ViewStudyMaterials = () => {
   const { user } = useAuth();
@@ -48,7 +49,7 @@ const ViewStudyMaterials = () => {
       URL.revokeObjectURL(link.href);
     } catch (err) {
       console.error("Download failed:", err);
-      alert("Download failed ❌");
+      toast.error("Download failed ❌");
     }
   };
 

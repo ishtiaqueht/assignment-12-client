@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import UseAxios from "../../hooks/UseAxios";
 import { toast } from "react-toastify";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const ManageSessions = () => {
-  const axios = UseAxios();
+  const axios = useAxiosSecure();
   const queryClient = useQueryClient();
 
   const [rejectSession, setRejectSession] = useState(null);

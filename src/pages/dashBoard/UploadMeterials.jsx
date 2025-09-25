@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import UseAxios from "../../hooks/UseAxios";
 import useAuth from "../../hooks/UseAuth";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const UploadMaterials = () => {
-  const axiosInstance = UseAxios();
+  const axiosInstance = useAxiosSecure();
   const { user } = useAuth();
 
   const [sessions, setSessions] = useState([]);
