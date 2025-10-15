@@ -12,7 +12,7 @@ Admins can efficiently manage users, materials, and tutors in one place.
 ---
 
 ## 🌐 Live Site URL
-👉 [StudySphere Live](https://your-live-site-link.com)
+👉 [StudySphere Live](https://assignment-12-a3a2e.web.app/)
 
 ---
 
